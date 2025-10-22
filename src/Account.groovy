@@ -2,9 +2,12 @@ class Account {
     private int status
     private int id
     private String clientName
-    private static double balance
+    private double balance
     private MoneyUtils.Currency currency
 
+    MoneyUtils.Currency getCurrency() {
+        return currency
+    }
     int getId() {
         return id
     }
@@ -19,11 +22,23 @@ class Account {
         this.balance = balance
     }
 
-    Account plus (double count, MoneyUtils.Currency currencyIncome = MoneyUtils.Currency.RUB) {
-        println(">> Balance ${sprintf('%.2f',balance)} ${currency}, Income: ${sprintf('%.2f',count)} ${currencyIncome}")
+    def plus (double count, MoneyUtils.Currency currencyIncome = MoneyUtils.Currency.RUB) {
+        println(">> Balance [${id}] ${sprintf('%.2f',balance)} ${currency}; Income: ${sprintf('%.2f',count)} ${currencyIncome}")
         balance +=  MoneyUtils.convert(count, currencyIncome, currency)
-        println(">> New balance: ${sprintf('%.2f',balance)} ${currency}")
+        println(">> New balance [${id}]: ${sprintf('%.2f',balance)} ${currency}")
         return this
+    }
+
+    def minus (double count, MoneyUtils.Currency currencyOutcome = MoneyUtils.Currency.RUB) {
+        if (balance >= MoneyUtils.convert(count, currencyOutcome, currency)) {
+            println(">> Balance [${id}] ${sprintf('%.2f', balance)} ${currency}; Outcome: ${sprintf('%.2f', count)} ${currencyOutcome}")
+            balance -= MoneyUtils.convert(count, currencyOutcome, currency)
+            println(">> New balance [${id}] : ${sprintf('%.2f', balance)} ${currency}")
+            return this
+        } else {
+            println(">> Error: Insufficient money! Balance: ${sprintf('%.2f', balance)} ${currency}")
+            return null
+        }
     }
 
     boolean asBoolean() {
@@ -32,9 +47,10 @@ class Account {
 
     String toString() {
         if (this) {
-            return this.properties.toString()
+            return "[Id:$id, Client:$clientName, Balance:${sprintf('%.2f',balance)} $currency]"
+            //return this.properties.toString()
         } else {
-            return('Account is out of service!')
+            return("Account [$id] is out of service!")
         }
     }
 
